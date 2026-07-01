@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Manjot Singh">
+
+<title>Metabolomics analysis of intracellular metabolites in VEGFR2 WT and R1032Q expressing cells</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Metabolomic pipeline analysis_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Metabolomic pipeline analysis_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Metabolomic pipeline analysis_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Metabolomic pipeline analysis_files/libs/quarto-html/popper.min.js"></script>
+<script src="Metabolomic pipeline analysis_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Metabolomic pipeline analysis_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Metabolomic pipeline analysis_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Metabolomic pipeline analysis_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Metabolomic pipeline analysis_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Metabolomic pipeline analysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Metabolomic pipeline analysis_files/libs/bootstrap/bootstrap-efbb37e9afcc02144ebbc7afd12a776f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Metabolomics analysis of intracellular metabolites in VEGFR2 WT and R1032Q expressing cells</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Manjot Singh </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="pca" class="level1">
+<h1><strong>PCA</strong></h1>
+<ul>
+<li><em>Caricamento librerie</em></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcorrplot)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(FactoMineR)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<ul>
+<li><em>Caricamento del dataset, creazione dataset con soltanto i valori numerici.</em></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>metabolome <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"metabolome.transpose.xlsx"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(metabolome)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(metabolome)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [12 × 26] (S3: tbl_df/tbl/data.frame)
+ $ Fragment            : chr [1:12] "VEGFR2 WT" "VEGFR2 WT" "VEGFR2 WT" "VEGFR2 WT" ...
+ $ Pyruvate            : num [1:12] 0.0445 0.0372 -0.0717 -0.0719 -0.0657 ...
+ $ Lactate             : num [1:12] -0.0502 -0.183 -0.2857 -0.1613 -0.1264 ...
+ $ Alanine             : num [1:12] 0.00888 -0.01258 -0.09031 -0.06923 -0.09021 ...
+ $ Glycine             : num [1:12] -0.167 -0.236 -0.0405 0.1831 0.033 ...
+ $ Valine              : num [1:12] 0.02874 -0.00956 -0.07914 -0.05877 -0.06685 ...
+ $ Leucine             : num [1:12] 0.015 -0.0449 -0.1185 -0.0666 -0.0885 ...
+ $ Isoleucine          : num [1:12] 0.0141 -0.0492 -0.1131 -0.0704 -0.0775 ...
+ $ Proline             : num [1:12] -0.00888 -0.11828 -0.10424 -0.06184 -0.08081 ...
+ $ Succinate           : num [1:12] 0.00234 -0.00655 -0.0121 -0.00191 -0.00922 ...
+ $ Fumarate            : num [1:12] -0.03939 -0.0333 -0.00136 0.02086 0.01069 ...
+ $ Serine              : num [1:12] 0.02939 0.00417 -0.05921 0.02036 -0.03629 ...
+ $ Methionine          : num [1:12] 0.00581 -0.0037 -0.04408 -0.03024 -0.04823 ...
+ $ Alpha-ketoglutarate : num [1:12] -0.0309 -0.0446 -0.0255 0.0285 0.026 ...
+ $ Malate              : num [1:12] -0.00966 -0.02347 -0.041 -0.0127 -0.01016 ...
+ $ Phenylalanine       : num [1:12] 0.0198 -0.00711 -0.06019 -0.04484 -0.05426 ...
+ $ Aspartate           : num [1:12] -0.00598 -0.01318 -0.04234 0.01271 -0.03008 ...
+ $ Cysteine            : num [1:12] -0.02488 -0.00615 0.0332 0.00237 -0.01078 ...
+ $ Glutamate           : num [1:12] -0.1743 -0.2973 -0.2599 0.0277 -0.1691 ...
+ $ Lysine              : num [1:12] 0.01599 0.00597 -0.02493 -0.02299 -0.02517 ...
+ $ Citrate             : num [1:12] -0.0696 -0.0811 0.0133 0.0723 0.0594 ...
+ $ Tyrosine            : num [1:12] 0.0524 -0.0421 -0.154 -0.0872 -0.1205 ...
+ $ Histidine           : num [1:12] 0.0825 0.033 -0.0791 -0.0653 -0.0654 ...
+ $ Hydroxyproline      : num [1:12] 0.00302 -0.02055 -0.04987 -0.03589 -0.05183 ...
+ $ Hydroxyglutarate    : num [1:12] -0.02311 -0.0331 0.00308 0.01559 0.01577 ...
+ $ Glycerol-3-phosphate: num [1:12] -0.00807 -0.02044 -0.04444 -0.03337 -0.01681 ...</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>numerical_data <span class="ot">&lt;-</span> metabolome[,<span class="dv">2</span><span class="sc">:</span><span class="dv">26</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<ul>
+<li><em>Calcolo matrice correlazione, componenti PCA, e visualizzazione prime due componenti</em></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(metabolome)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [12 × 26] (S3: tbl_df/tbl/data.frame)
+ $ Fragment            : chr [1:12] "VEGFR2 WT" "VEGFR2 WT" "VEGFR2 WT" "VEGFR2 WT" ...
+ $ Pyruvate            : num [1:12] 0.0445 0.0372 -0.0717 -0.0719 -0.0657 ...
+ $ Lactate             : num [1:12] -0.0502 -0.183 -0.2857 -0.1613 -0.1264 ...
+ $ Alanine             : num [1:12] 0.00888 -0.01258 -0.09031 -0.06923 -0.09021 ...
+ $ Glycine             : num [1:12] -0.167 -0.236 -0.0405 0.1831 0.033 ...
+ $ Valine              : num [1:12] 0.02874 -0.00956 -0.07914 -0.05877 -0.06685 ...
+ $ Leucine             : num [1:12] 0.015 -0.0449 -0.1185 -0.0666 -0.0885 ...
+ $ Isoleucine          : num [1:12] 0.0141 -0.0492 -0.1131 -0.0704 -0.0775 ...
+ $ Proline             : num [1:12] -0.00888 -0.11828 -0.10424 -0.06184 -0.08081 ...
+ $ Succinate           : num [1:12] 0.00234 -0.00655 -0.0121 -0.00191 -0.00922 ...
+ $ Fumarate            : num [1:12] -0.03939 -0.0333 -0.00136 0.02086 0.01069 ...
+ $ Serine              : num [1:12] 0.02939 0.00417 -0.05921 0.02036 -0.03629 ...
+ $ Methionine          : num [1:12] 0.00581 -0.0037 -0.04408 -0.03024 -0.04823 ...
+ $ Alpha-ketoglutarate : num [1:12] -0.0309 -0.0446 -0.0255 0.0285 0.026 ...
+ $ Malate              : num [1:12] -0.00966 -0.02347 -0.041 -0.0127 -0.01016 ...
+ $ Phenylalanine       : num [1:12] 0.0198 -0.00711 -0.06019 -0.04484 -0.05426 ...
+ $ Aspartate           : num [1:12] -0.00598 -0.01318 -0.04234 0.01271 -0.03008 ...
+ $ Cysteine            : num [1:12] -0.02488 -0.00615 0.0332 0.00237 -0.01078 ...
+ $ Glutamate           : num [1:12] -0.1743 -0.2973 -0.2599 0.0277 -0.1691 ...
+ $ Lysine              : num [1:12] 0.01599 0.00597 -0.02493 -0.02299 -0.02517 ...
+ $ Citrate             : num [1:12] -0.0696 -0.0811 0.0133 0.0723 0.0594 ...
+ $ Tyrosine            : num [1:12] 0.0524 -0.0421 -0.154 -0.0872 -0.1205 ...
+ $ Histidine           : num [1:12] 0.0825 0.033 -0.0791 -0.0653 -0.0654 ...
+ $ Hydroxyproline      : num [1:12] 0.00302 -0.02055 -0.04987 -0.03589 -0.05183 ...
+ $ Hydroxyglutarate    : num [1:12] -0.02311 -0.0331 0.00308 0.01559 0.01577 ...
+ $ Glycerol-3-phosphate: num [1:12] -0.00807 -0.02044 -0.04444 -0.03337 -0.01681 ...</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>numerical_data <span class="ot">&lt;-</span> metabolome[,<span class="dv">2</span><span class="sc">:</span><span class="dv">26</span>]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#dati già normalizzati altrimenti </span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># data_normalized &lt;- scale(numerical_data)</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(numerical_data)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(corr_matrix, </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">hc.order =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">"lower"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>data.pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(numerical_data)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(data.pca)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Importance of components:
+                          PC1    PC2     PC3     PC4     PC5     PC6     PC7
+Standard deviation     0.4780 0.2399 0.14030 0.04197 0.02873 0.01982 0.01235
+Proportion of Variance 0.7395 0.1862 0.06371 0.00570 0.00267 0.00127 0.00049
+Cumulative Proportion  0.7395 0.9257 0.98940 0.99510 0.99777 0.99904 0.99953
+                           PC8      PC9      PC10      PC11      PC12
+Standard deviation     0.01122 0.004236 4.769e-17 1.951e-17 1.477e-17
+Proportion of Variance 0.00041 0.000060 0.000e+00 0.000e+00 0.000e+00
+Cumulative Proportion  0.99994 1.000000 1.000e+00 1.000e+00 1.000e+00</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>data.pca<span class="sc">$</span>rotation[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                              PC1           PC2
+Pyruvate             -0.025001765 -0.2467964915
+Lactate               0.364569273 -0.4277480369
+Alanine               0.036008146 -0.2581090654
+Glycine               0.488352003  0.5558376108
+Valine                0.070314439 -0.1770691253
+Leucine               0.191884060 -0.1612726486
+Isoleucine            0.189060441 -0.1541917430
+Proline               0.189976016 -0.1622753975
+Succinate             0.020979442  0.0005717648
+Fumarate              0.063724117  0.0718459360
+Serine                0.180243072  0.1106070179
+Methionine            0.066872894 -0.0844400299
+Alpha-ketoglutarate   0.092782083  0.0836087377
+Malate                0.064710336 -0.0114874060
+Phenylalanine         0.057915215 -0.1335476284
+Aspartate             0.082350545  0.0127858817
+Cysteine              0.033616780  0.0619219729
+Glutamate             0.602501213 -0.0406535224
+Lysine                0.006160076 -0.0744743312
+Citrate               0.165718354  0.2881637078
+Tyrosine              0.217584139 -0.2292075502
+Histidine            -0.015615154 -0.2227694942
+Hydroxyproline        0.078790212 -0.1032356681
+Hydroxyglutarate      0.052545385  0.0722912815
+Glycerol-3-phosphate  0.022258511 -0.1063571051</code></pre>
+</div>
+</div>
+<ul>
+<li><em>Visualizzazione di quali componenti principali sono responsabili della maggiore varianza e quali componenti vettoriali sono più impattanti.</em></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_eig</span>(data.pca, <span class="at">addlabels =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_var</span>(data.pca, </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">geom =</span> <span class="fu">c</span>(<span class="st">"point"</span>, <span class="st">"text"</span>),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.var =</span> <span class="st">"black"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">repel =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_cos2</span>(data.pca, <span class="at">choice =</span> <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-4-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><em>Visualizzazione PCA</em></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sample_groups <span class="ot">&lt;-</span> metabolome[[<span class="dv">1</span>]]</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_ind</span>(data.pca,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">geom =</span> <span class="st">"point"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">pointsize =</span> <span class="fl">2.5</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">habillage =</span> sample_groups,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">palette =</span> <span class="st">"npg"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">addEllipses =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">axes.linetype =</span> <span class="st">"blank"</span>) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span> </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(), </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"PCA VEGFR2 R1032Q Vs VEGFR2 WT"</span>,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"PC1 (73.9%)"</span>, </span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"PC2 (18.6%)"</span>  </span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="volcano-plot" class="level1">
+<h1><strong>VOLCANO PLOT</strong></h1>
+<ul>
+<li><p>Procediamo a manipolare su Excel i nostri dati non normalizzati su una distribuzione noramle. Calcoliamo la media per ciascun metabolita in entrambi gli scenari. Procediamo con il calcolo del fold change di VEGFR2 R1032Q su VEGFR2 WT e ne calcoliamo il logaritmo su base 2. Calcoliamo il P-value usando la funzione T.TEST di excel effettuando un test di student appaiato, siccome abbiamo manipolato l’effetto batch dipendente mediante la normalizzazione dei dati basata sul rapporto tra le medie: ottenuto il valore ne calcoliamo il logaritmo su base 10 reso poi negativo. Usiamo come threshold P-value = 0.05.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fold_change_metabolome <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"fold_change_metabolome.xlsx"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(fold_change_metabolome)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>pvalue_threshold <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log10</span>(<span class="fl">0.05</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>fc_separator <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>biological_significance <span class="ot">&lt;-</span> <span class="fl">0.2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></li>
+<li><p>Manipoliamo il data frame conservando solo la colonna dei metaboliti, il logaritmo su base 2 del fold change, e il valore negativo del logaritmo su base 10 del P-value. Inoltre aggiungiamo una colonna per definire i valori significativi e non mediante una opportuna funzione logica.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>volcano_plot_data <span class="ot">&lt;-</span> fold_change_metabolome <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Metabolite, Log2FC, log_base_10)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>volcano_plot_data <span class="ot">&lt;-</span> fold_change_metabolome <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Significance =</span> <span class="fu">case_when</span>(</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>      Log2FC <span class="sc">&gt;</span> fc_separator <span class="sc">&amp;</span> log_base_10 <span class="sc">&gt;</span> pvalue_threshold <span class="sc">~</span> <span class="st">"Up-regulated"</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>      Log2FC <span class="sc">&lt;</span> fc_separator <span class="sc">&amp;</span> log_base_10 <span class="sc">&gt;</span> pvalue_threshold <span class="sc">~</span> <span class="st">"Down-regulated"</span>,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Not Significant"</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></li>
+<li><p>Visualizziamo il Volcano Plot.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>volcano_plot_data <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Log2FC, <span class="at">y =</span> log_base_10, <span class="at">color =</span> Significance)) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Up-regulated"</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Down-regulated"</span> <span class="ot">=</span> <span class="st">"steelblue"</span>, </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Not Significant"</span> <span class="ot">=</span> <span class="st">"grey75"</span>)) <span class="sc">+</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">c</span>(biological_significance,  <span class="sc">-</span>biological_significance),<span class="at">col =</span> <span class="st">"black"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span> ) <span class="sc">+</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> pvalue_threshold, <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> <span class="fu">subset</span>(volcano_plot_data, Significance <span class="sc">!=</span> <span class="st">"Not Significant"</span>),</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">label =</span> Metabolite),</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">3.5</span>,</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">max.overlaps =</span> <span class="cn">Inf</span>,          </span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">show.legend =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"black"</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Volcano Plot of Metabolites"</span>,</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"VEGFR2 R1032Q vs WT"</span>,</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">bquote</span>(<span class="sc">~</span>Log[<span class="dv">2</span>]<span class="sc">~</span> <span class="st">"FC"</span>),</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">bquote</span>(<span class="sc">~-</span>Log[<span class="dv">10</span>]<span class="sc">~</span> <span class="st">"(P-value)"</span>)</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">16</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>)</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div></li>
+<li><p><em>Osserviamo che sono “up-regolati” la sintesi di idrossiprolina, glutammato, prolina, e idrossiglutarato. Quindi osserviamo glutamminolisi e sintesi dei precursori per il collagene. La glutammina viene convertita in glutammato che a sua volta verrà convertito in alfa-ketoglutarato. E’ possibile che un aumento della cinetica del TCA non renda significativa il fold-change dell’alfa ketoglutarato, ma un suo aumento è corroborato dalla sintesi dell’idrossiglutarato. Inoltre, oltre alla conversione in alfa ketoglutarato, il glutammato può essere convertito in prolina, che a sua volta viene converita in idrossiprolina.</em></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Screenshot_29-4-2026_233645_.jpeg" class="img-fluid figure-img"></p>
+<figcaption>glutaminolysis</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Screenshot_29-4-2026_23397_.jpeg" class="img-fluid figure-img"></p>
+<figcaption>synthesis of proline and hydroxyproline</figcaption>
+</figure>
+</div></li>
+<li><p><em>Osserviamo che è “down-regolato” la sintesi della serina. Ricordiamoci che essa deriva dal 3 fosfo-glicerato, un intermedio della glicolisi. E’ possibile che a causa dell’effetto warburg, il pathway glicolitco sia favorito rispetto alla biosintesi di amminoacidi - fra cui la serina, la glicina e la cisteina.</em></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Screenshot_29-4-2026_234347_-01.jpeg" class="img-fluid figure-img"></p>
+<figcaption>serine synthesis pathway</figcaption>
+</figure>
+</div>
+<h1 id="analisi-con-il-software-metaboanalyst-6.0"><strong>Analisi con il software MetaboAnalyst 6.0</strong></h1></li>
+<li><p>Usando lo script necessario per installare i pacchetti di questo software, noi possiamo effettuare analisi di pathway enrichment. In questo caso procederemo ad effettuare 3 analisi.</p></li>
+<li><p>La prima consiste nell’effettuare l’analisi di over rappresentazione, ovvero di selezionare i pathway che sono più rappresentati. La seconda consiste nell’identificazione specifica dei pathway sfruttando le repositories di Kegg pathway di modo che possiamo valutare l’impatto dei pathway che siamo riusciti ad identificare. La terza infine rappresenta una analisi per l’identificazione di pathway più significativi. In pratica è l’equivalente metabolomico dell’enrichment genomico. Non effettuiamo normalizzazioni in quanto i dati sono già normalizzati (pareto_scaled)</p></li>
+<li><p>Procediamo ad effettuare le analisi, conseguentemente dobbiamo caricare le seguenti librerie.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MetaboAnalystR)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Cairo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></li>
+<li><p>Manipoliamo il dataset dei dati normalizzati per renderli utilizzabili per questa analisi</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>mets_names <span class="ot">&lt;-</span> <span class="fu">colnames</span>(numerical_data)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>sample_names_ma <span class="ot">&lt;-</span> <span class="fu">rownames</span>(numerical_data) </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>class_labels <span class="ot">&lt;-</span> <span class="fu">as.character</span>(sample_groups)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>header <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">c</span>(<span class="st">"Sample"</span>, sample_names_ma), <span class="at">collapse =</span> <span class="st">","</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">c</span>(<span class="st">"Label"</span>,  class_labels), <span class="at">collapse =</span> <span class="st">","</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>rows   <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">cbind</span>(mets_names, <span class="fu">t</span>(numerical_data)), <span class="dv">1</span>, paste, <span class="at">collapse =</span> <span class="st">","</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(header, labels, rows), <span class="st">"Università/tesi magistrale/dati/metaboanalyst_input.csv"</span>) <span class="co">#questa è la mia directory, ovviamente cambia in funzione a chi lo usa </span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></li>
+<li><p>Procediamo con l’analisi MSEA di over rappresentazione.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">InitDataObjects</span>(<span class="st">"conc"</span>, <span class="st">"msetora"</span>, <span class="cn">FALSE</span>, <span class="at">default.dpi =</span> <span class="dv">300</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "MetaboAnalyst R objects initialized ..."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">Read.TextData</span>(mSet, <span class="st">"Università/tesi magistrale/dati/metaboanalyst_input.csv"</span>, <span class="st">"colu"</span>, <span class="st">"disc"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">SanityCheckData</span>(mSet)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Successfully passed sanity check!"                                                                    
+[2] "Samples are not paired."                                                                              
+[3] "2 groups were detected in samples."                                                                   
+[4] "Only English letters, numbers, underscore, hyphen and forward slash (/) are allowed."                 
+[5] "&lt;font color=\"orange\"&gt;Other special characters or punctuations (if any) will be stripped off.&lt;/font&gt;"
+[6] "All data values are numeric."                                                                         
+[7] ""                                                                                                     
+[8] "No missing values were detected. Click the &lt;b&gt;Proceed&lt;/b&gt; button to the next step."                   </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">PreparePrenormData</span>(mSet)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "save data - prenorm ...."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">Normalization</span>(mSet, <span class="st">"NULL"</span>, <span class="st">"NULL"</span>, <span class="st">"NULL"</span>, <span class="at">ratio=</span><span class="cn">FALSE</span>, <span class="at">ratioNum=</span><span class="dv">20</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">CrossReferencing</span>(mSet, <span class="st">"name"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."
+[1] "syn_nms.qs"
+[1] "Loaded files from MetaboAnalyst web-server."
+[1] "1"                                                                              
+[2] "Name matching OK, please inspect (and manual correct) the results then proceed."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">CreateMappingResultTable</span>(mSet)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">SetMetabolomeFilter</span>(mSet, <span class="cn">FALSE</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">SetCurrentMsetLib</span>(mSet, <span class="st">"smpdb_pathway"</span>, <span class="dv">2</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>mSet <span class="ot">&lt;-</span> <span class="fu">CalculateHyperScore</span>(mSet)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>ora_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(mSet<span class="sc">$</span>analSet<span class="sc">$</span>ora.mat)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>ora_df<span class="sc">$</span>pathway <span class="ot">&lt;-</span> <span class="fu">rownames</span>(ora_df)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(ora_df, <span class="st">"Università/tesi magistrale/dati/msea_ora_smpdb_results.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>) <span class="co">#salviamo i risultati</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></li>
+<li><p>Procediamo con l’analisi di pathway enrichment, ove dobbiamo creare una libreria da Kegg pathway per associare gli ID ottenuti al pathway corrispettivo.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">InitDataObjects</span>(<span class="st">"conc"</span>, <span class="st">"pathora"</span>, <span class="cn">FALSE</span>, <span class="at">default.dpi =</span> <span class="dv">300</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "MetaboAnalyst R objects initialized ..."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">Read.TextData</span>(mSet2, <span class="st">"Università/tesi magistrale/dati/metaboanalyst_input.csv"</span>, <span class="st">"colu"</span>, <span class="st">"disc"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">SanityCheckData</span>(mSet2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Successfully passed sanity check!"                                                                    
+[2] "Samples are not paired."                                                                              
+[3] "2 groups were detected in samples."                                                                   
+[4] "Only English letters, numbers, underscore, hyphen and forward slash (/) are allowed."                 
+[5] "&lt;font color=\"orange\"&gt;Other special characters or punctuations (if any) will be stripped off.&lt;/font&gt;"
+[6] "All data values are numeric."                                                                         
+[7] ""                                                                                                     
+[8] "No missing values were detected. Click the &lt;b&gt;Proceed&lt;/b&gt; button to the next step."                   </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">PreparePrenormData</span>(mSet2) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "save data - prenorm ...."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">Normalization</span>(mSet2, <span class="st">"NULL"</span>, <span class="st">"NULL"</span>, <span class="st">"NULL"</span>, <span class="at">ratio=</span><span class="cn">FALSE</span>, <span class="at">ratioNum=</span><span class="dv">20</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">CrossReferencing</span>(mSet2, <span class="st">"name"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."
+[1] "syn_nms.qs"
+[1] "Loaded files from MetaboAnalyst web-server."
+[1] "1"                                                                              
+[2] "Name matching OK, please inspect (and manual correct) the results then proceed."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">CreateMappingResultTable</span>(mSet2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">SetKEGG.PathLib</span>(mSet2, <span class="st">"hsa"</span>, <span class="st">"current"</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">SetMetabolomeFilter</span>(mSet2, F)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>mSet2 <span class="ot">&lt;-</span> <span class="fu">CalculateOraScore</span>(mSet2, <span class="st">"rbc"</span>, <span class="st">"hyperg"</span>) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#libreria kegg pathway</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>kegg_dict <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"https://rest.kegg.jp/list/pathway/hsa"</span>, </span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">header =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"kegg_id"</span>, <span class="st">"pathway_name"</span>),</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>) </span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>kegg_dict<span class="sc">$</span>kegg_id <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"path:"</span>, <span class="st">""</span>, kegg_dict<span class="sc">$</span>kegg_id)  </span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>kegg_dict<span class="sc">$</span>pathway_name <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">" - Homo sapiens </span><span class="sc">\\</span><span class="st">(human</span><span class="sc">\\</span><span class="st">)"</span>, <span class="st">""</span>, kegg_dict<span class="sc">$</span>pathway_name) </span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>path_mat <span class="ot">&lt;-</span> mSet2<span class="sc">$</span>analSet<span class="sc">$</span>ora.mat</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>path_df  <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(path_mat)</span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(path_df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"total"</span>, <span class="st">"expected"</span>, <span class="st">"hits"</span>, <span class="st">"raw_p"</span>, <span class="st">"neg_log10p"</span>, <span class="st">"holm_p"</span>, <span class="st">"FDR"</span>, <span class="st">"impact"</span>)</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>path_df<span class="sc">$</span>kegg_id <span class="ot">&lt;-</span> <span class="fu">rownames</span>(path_df)</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>match_indices <span class="ot">&lt;-</span> <span class="fu">match</span>(path_df<span class="sc">$</span>kegg_id, kegg_dict<span class="sc">$</span>kegg_id)</span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a>path_df<span class="sc">$</span>pathway_name <span class="ot">&lt;-</span> kegg_dict<span class="sc">$</span>pathway_name[match_indices]</span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true" tabindex="-1"></a>path_df <span class="ot">&lt;-</span> path_df[<span class="fu">order</span>(path_df<span class="sc">$</span>raw_p), ]</span>
+<span id="cb46-18"><a href="#cb46-18" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(path_df, <span class="st">"Università/tesi magistrale/dati/kegg_pathway_results.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>) <span class="co">#salviamo i risultati</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></li>
+<li><p>Procediamo con l’analisi per l’identificazione dei pathway più significativi (Quantitative enrichment analysis)</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">InitDataObjects</span>(<span class="st">"conc"</span>, <span class="st">"msetqea"</span>, <span class="cn">FALSE</span>, <span class="at">default.dpi =</span> <span class="dv">300</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Starting Rserve...
+ "C:\Users\yahoo\AppData\Local\R\WIN-LI~1\4.3\Rserve\libs\x64\Rserve.exe" --no-save </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "MetaboAnalyst R objects initialized ..."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">Read.TextData</span>(mSet3, <span class="st">"Università/tesi magistrale/dati/metaboanalyst_input.csv"</span>, <span class="st">"colu"</span>, <span class="st">"disc"</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">SanityCheckData</span>(mSet3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Successfully passed sanity check!"                                                                    
+[2] "Samples are not paired."                                                                              
+[3] "2 groups were detected in samples."                                                                   
+[4] "Only English letters, numbers, underscore, hyphen and forward slash (/) are allowed."                 
+[5] "&lt;font color=\"orange\"&gt;Other special characters or punctuations (if any) will be stripped off.&lt;/font&gt;"
+[6] "All data values are numeric."                                                                         
+[7] ""                                                                                                     
+[8] "No missing values were detected. Click the &lt;b&gt;Proceed&lt;/b&gt; button to the next step."                   </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">PreparePrenormData</span>(mSet3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "save data - prenorm ...."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">Normalization</span>(mSet3, <span class="st">"NULL"</span>, <span class="st">"NULL"</span>, <span class="st">"NULL"</span>, <span class="at">ratio =</span> <span class="cn">FALSE</span>, <span class="at">ratioNum =</span> <span class="dv">20</span>)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">CrossReferencing</span>(mSet3, <span class="st">"name"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."
+[1] "syn_nms.qs"
+[1] "Loaded files from MetaboAnalyst web-server."
+[1] "1"                                                                              
+[2] "Name matching OK, please inspect (and manual correct) the results then proceed."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">CreateMappingResultTable</span>(mSet3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">SetMetabolomeFilter</span>(mSet3, <span class="cn">FALSE</span>) </span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">SetCurrentMsetLib</span>(mSet3, <span class="st">"kegg_pathway"</span>, <span class="dv">2</span>) </span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>mSet3 <span class="ot">&lt;-</span> <span class="fu">CalculateGlobalTestScore</span>(mSet3) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "compound_db.qs"
+[1] "Loaded files from MetaboAnalyst web-server."
+[1] "Enrichment QEA via xialab.ca/api successful!"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>qea_mat <span class="ot">&lt;-</span> mSet3<span class="sc">$</span>analSet<span class="sc">$</span>qea.mat</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(qea_mat)){</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  qea_df  <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(qea_mat)</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>  qea_df<span class="sc">$</span>pathway <span class="ot">&lt;-</span> <span class="fu">rownames</span>(qea_df)</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  col_name <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="st">"Raw p"</span> <span class="sc">%in%</span> <span class="fu">colnames</span>(qea_df), <span class="st">"Raw p"</span>, <span class="st">"p.value"</span>)</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>  qea_df <span class="ot">&lt;-</span> qea_df[<span class="fu">order</span>(qea_df[[col_name]]), ]</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">head</span>(qea_df, <span class="dv">10</span>))</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(qea_df, <span class="st">"Università/tesi magistrale/dati/qea_results.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>} <span class="co">#salviamo i risultati e printiamo il data frame ottenuto</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                Total Cmpd Hits Statistic Q Expected Q
+Glycolysis / Gluconeogenesis            24    2      71.878     9.0909
+Pyruvate metabolism                     22    4      69.295     9.0909
+Glycerolipid metabolism                 16    1      63.735     9.0909
+Glycerophospholipid metabolism          36    1      63.735     9.0909
+Arginine and proline metabolism         35    4      54.591     9.0909
+Selenocompound metabolism               20    1      54.597     9.0909
+Nitrogen metabolism                      6    1      54.228     9.0909
+D-Amino acid metabolism                 14    3      48.228     9.0909
+Histidine metabolism                    16    3      51.137     9.0909
+Butanoate metabolism                    15    3      52.989     9.0909
+                                     Raw p    Holm p       FDR
+Glycolysis / Gluconeogenesis    0.00014395 0.0054700 0.0031899
+Pyruvate metabolism             0.00016789 0.0062119 0.0031899
+Glycerolipid metabolism         0.00185130 0.0666450 0.0175870
+Glycerophospholipid metabolism  0.00185130 0.0666450 0.0175870
+Arginine and proline metabolism 0.00402810 0.1369600 0.0264030
+Selenocompound metabolism       0.00604460 0.1994700 0.0264030
+Nitrogen metabolism             0.00631010 0.2019200 0.0264030
+D-Amino acid metabolism         0.00640120 0.2019200 0.0264030
+Histidine metabolism            0.00682420 0.2047200 0.0264030
+Butanoate metabolism            0.00696330 0.2047200 0.0264030
+                                                        pathway
+Glycolysis / Gluconeogenesis       Glycolysis / Gluconeogenesis
+Pyruvate metabolism                         Pyruvate metabolism
+Glycerolipid metabolism                 Glycerolipid metabolism
+Glycerophospholipid metabolism   Glycerophospholipid metabolism
+Arginine and proline metabolism Arginine and proline metabolism
+Selenocompound metabolism             Selenocompound metabolism
+Nitrogen metabolism                         Nitrogen metabolism
+D-Amino acid metabolism                 D-Amino acid metabolism
+Histidine metabolism                       Histidine metabolism
+Butanoate metabolism                       Butanoate metabolism</code></pre>
+</div>
+</div></li>
+<li><p>Una volta effettuate le analisi, procediamo a caricare i files ottenuti per effettuare la rappresentazione con il pacchetto ggplot2.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>ora_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"Università/tesi magistrale/dati/msea_ora_smpdb_results.csv"</span>)</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>kegg_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"Università/tesi magistrale/dati/kegg_pathway_results.csv"</span>)</span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>qea_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"Università/tesi magistrale/dati/qea_results.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div></li>
+<li><p>MSEA</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>top_pathways <span class="ot">&lt;-</span> ora_data <span class="sc">|&gt;</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Raw.p) <span class="sc">|&gt;</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">15</span>) <span class="sc">|&gt;</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pathway =</span> <span class="fu">factor</span>(pathway, <span class="at">levels =</span> <span class="fu">rev</span>(pathway))) </span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>top_pathways <span class="sc">|&gt;</span> </span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="sc">-</span><span class="fu">log10</span>(Raw.p), <span class="at">y =</span> pathway))  <span class="sc">+</span></span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">xend =</span> <span class="sc">-</span><span class="fu">log10</span>(Raw.p), <span class="at">y =</span> pathway, <span class="at">yend =</span> pathway), <span class="at">color =</span> <span class="st">"grey80"</span>) <span class="sc">+</span></span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> hits, <span class="at">fill =</span> <span class="sc">-</span><span class="fu">log10</span>(Raw.p)), <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"blue"</span>, <span class="at">high =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pathway Enrichment (SMPDB)"</span>,</span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"-Log10 p-value"</span>,</span>
+<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">size =</span> <span class="st">"Metabolite Count"</span>,</span>
+<span id="cb63-16"><a href="#cb63-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Significance"</span>) <span class="sc">+</span></span>
+<span id="cb63-17"><a href="#cb63-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb63-18"><a href="#cb63-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div></li>
+<li><p>Kegg enrichment</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>kegg_plot_data <span class="ot">&lt;-</span> kegg_data <span class="sc">|&gt;</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(neg_log10p)) <span class="sc">|&gt;</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pathway_name =</span> <span class="fu">factor</span>(pathway_name, <span class="at">levels =</span> <span class="fu">rev</span>(pathway_name)))</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>kegg_plot_data <span class="sc">|&gt;</span></span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x =</span> impact, <span class="at">y =</span> pathway_name)) <span class="sc">+</span></span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey60"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> hits, <span class="at">color =</span> neg_log10p), <span class="at">alpha =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_gradient</span>(<span class="at">low =</span> <span class="st">"blue"</span>, <span class="at">high =</span> <span class="st">"red"</span>, </span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>                       <span class="at">name =</span> <span class="fu">expression</span>(<span class="sc">-</span>log[<span class="dv">10</span>](p))) <span class="sc">+</span></span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">11</span>), <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>), <span class="at">name =</span> <span class="st">"Hits"</span>) <span class="sc">+</span></span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"KEGG Pathway Analysis"</span>,</span>
+<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"VEGFR2 R1032Q vs WT"</span>,</span>
+<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Pathway Impact Score"</span>,</span>
+<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="cn">NULL</span></span>
+<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.x =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"grey90"</span>),</span>
+<span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(), </span>
+<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.line.x =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"black"</span>),</span>
+<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.line.y =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"black"</span>),</span>
+<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">10</span>),</span>
+<span id="cb64-28"><a href="#cb64-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">10</span>),</span>
+<span id="cb64-29"><a href="#cb64-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">15</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb64-30"><a href="#cb64-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"grey50"</span>, <span class="at">size =</span> <span class="dv">11</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb64-31"><a href="#cb64-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span></span>
+<span id="cb64-32"><a href="#cb64-32" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div></li>
+<li><p>QEA</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>qea_top <span class="ot">&lt;-</span> qea_data <span class="sc">|&gt;</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">p_val =</span> <span class="fu">matches</span>(<span class="st">"Raw.p|p.value"</span>),</span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">fdr_val =</span> <span class="fu">matches</span>(<span class="st">"FDR"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(p_val) <span class="sc">|&gt;</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">15</span>) <span class="sc">|&gt;</span></span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pathway =</span> <span class="fu">factor</span>(pathway, <span class="at">levels =</span> <span class="fu">rev</span>(pathway)),</span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">log10p =</span> <span class="sc">-</span><span class="fu">log10</span>(p_val)) </span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>qea_top <span class="sc">|&gt;</span> </span>
+<span id="cb65-10"><a href="#cb65-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> log10p, <span class="at">y =</span> pathway)) <span class="sc">+</span></span>
+<span id="cb65-11"><a href="#cb65-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">xend =</span> log10p, <span class="at">y =</span> pathway, <span class="at">yend =</span> pathway), </span>
+<span id="cb65-12"><a href="#cb65-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> <span class="st">"grey80"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb65-13"><a href="#cb65-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> Statistic.Q, <span class="at">fill =</span> fdr_val), </span>
+<span id="cb65-14"><a href="#cb65-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">stroke =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb65-15"><a href="#cb65-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="sc">-</span><span class="fu">log10</span>(<span class="fl">0.05</span>), <span class="at">linetype =</span> <span class="st">"dashed"</span>, </span>
+<span id="cb65-16"><a href="#cb65-16" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"firebrick"</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb65-17"><a href="#cb65-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"#e31a1c"</span>, <span class="at">high =</span> <span class="st">"#feb24c"</span>, <span class="at">name =</span> <span class="st">"FDR"</span>) <span class="sc">+</span></span>
+<span id="cb65-18"><a href="#cb65-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">10</span>), <span class="at">name =</span> <span class="st">"Global Statistic"</span>) <span class="sc">+</span></span>
+<span id="cb65-19"><a href="#cb65-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb65-20"><a href="#cb65-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Quantitative Enrichment Analysis (GlobalTest)"</span>,</span>
+<span id="cb65-21"><a href="#cb65-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Top 15 Pathways - VEGFR2 R1032Q vs WT"</span>,</span>
+<span id="cb65-22"><a href="#cb65-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">expression</span>(<span class="sc">-</span>log[<span class="dv">10</span>](p<span class="sc">-</span>value)),</span>
+<span id="cb65-23"><a href="#cb65-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="cn">NULL</span></span>
+<span id="cb65-24"><a href="#cb65-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb65-25"><a href="#cb65-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb65-26"><a href="#cb65-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb65-27"><a href="#cb65-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb65-28"><a href="#cb65-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">color =</span> <span class="st">"black"</span>),</span>
+<span id="cb65-29"><a href="#cb65-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb65-30"><a href="#cb65-30" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Metabolomic-pipeline-analysis_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div></li>
+<li><p>I risultati corroborano quanto detto sul significato biologico dei risultati del volcano plotting.</p></li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
