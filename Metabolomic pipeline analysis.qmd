@@ -1,0 +1,391 @@
+---
+title: "Metabolomics analysis of intracellular metabolites in VEGFR2 WT and R1032Q expressing cells"
+author: "Manjot Singh"
+format: html
+editor: visual
+code-fold: true
+execute:
+  warning: false
+  message: false
+---
+
+# **PCA**
+
+- *Caricamento librerie*
+
+```{r}
+library(corrr)
+library(ggcorrplot)
+library(FactoMineR)
+library(factoextra)
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(ggrepel)
+library(dplyr)
+```
+
+- *Caricamento del dataset, creazione dataset con soltanto i valori numerici.*
+
+```{r}
+metabolome <- read_excel("metabolome.transpose.xlsx")
+View(metabolome)
+
+str(metabolome)
+numerical_data <- metabolome[,2:26]
+```
+
+- *Calcolo matrice correlazione, componenti PCA, e visualizzazione prime due componenti*
+
+```{r}
+str(metabolome)
+numerical_data <- metabolome[,2:26]
+
+#dati già normalizzati altrimenti 
+# data_normalized <- scale(numerical_data)
+
+corr_matrix <- cor(numerical_data)
+ggcorrplot(corr_matrix, 
+           hc.order = TRUE,
+           type = "lower")
+
+data.pca <- prcomp(numerical_data)
+summary(data.pca)
+
+data.pca$rotation[, 1:2]
+```
+
+- *Visualizzazione di quali componenti principali sono responsabili della maggiore varianza e quali componenti vettoriali sono più impattanti.*
+
+```{r}
+
+fviz_eig(data.pca, addlabels = TRUE)
+
+fviz_pca_var(data.pca, 
+             geom = c("point", "text"),
+             col.var = "black",
+             repel = TRUE) +
+  theme_classic()
+
+fviz_cos2(data.pca, choice = "var", axes = 1:2)
+```
+
+- *Visualizzazione PCA*
+
+```{r}
+
+sample_groups <- metabolome[[1]]
+fviz_pca_ind(data.pca,
+             geom = "point",
+             pointsize = 2.5,
+             habillage = sample_groups,
+             palette = "npg",
+             addEllipses = TRUE,
+             axes.linetype = "blank") +
+  theme_classic() + 
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = "right",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10)) +
+  labs(
+    title = "PCA VEGFR2 R1032Q Vs VEGFR2 WT",
+    x = "PC1 (73.9%)", 
+    y = "PC2 (18.6%)"  
+  )
+
+```
+
+# **VOLCANO PLOT**
+
+- Procediamo a manipolare su Excel i nostri dati non normalizzati su una distribuzione noramle. Calcoliamo la media per ciascun metabolita in entrambi gli scenari. Procediamo con il calcolo del fold change di VEGFR2 R1032Q su VEGFR2 WT e ne calcoliamo il logaritmo su base 2. Calcoliamo il P-value usando la funzione T.TEST di excel effettuando un test di student appaiato, siccome abbiamo manipolato l'effetto batch dipendente mediante la normalizzazione dei dati basata sul rapporto tra le medie: ottenuto il valore ne calcoliamo il logaritmo su base 10 reso poi negativo. Usiamo come threshold P-value = 0.05.
+
+  ```{r}
+  fold_change_metabolome <- read_excel("fold_change_metabolome.xlsx")
+  View(fold_change_metabolome)
+
+  pvalue_threshold <- -log10(0.05)
+  fc_separator <- 0
+  biological_significance <- 0.2
+  ```
+
+- Manipoliamo il data frame conservando solo la colonna dei metaboliti, il logaritmo su base 2 del fold change, e il valore negativo del logaritmo su base 10 del P-value. Inoltre aggiungiamo una colonna per definire i valori significativi e non mediante una opportuna funzione logica.
+
+  ```{r}
+  volcano_plot_data <- fold_change_metabolome |>
+    select(Metabolite, Log2FC, log_base_10)
+
+  volcano_plot_data <- fold_change_metabolome |>
+    mutate(
+      Significance = case_when(
+        Log2FC > fc_separator & log_base_10 > pvalue_threshold ~ "Up-regulated",
+        Log2FC < fc_separator & log_base_10 > pvalue_threshold ~ "Down-regulated",
+        TRUE ~ "Not Significant"
+      )
+    )
+
+  ```
+
+- Visualizziamo il Volcano Plot.
+
+  ```{r}
+  volcano_plot_data |> 
+    ggplot(aes(x = Log2FC, y = log_base_10, color = Significance)) +
+    geom_point(alpha = 0.8, size = 2.5) +
+    scale_color_manual(values = c("Up-regulated" = "firebrick", 
+                                  "Down-regulated" = "steelblue", 
+                                  "Not Significant" = "grey75")) +
+    geom_vline(xintercept = c(biological_significance,  -biological_significance),col = "black", linetype = "dashed", alpha = 0.5 ) +
+    geom_hline(yintercept = pvalue_threshold, col = "black", linetype = "dashed", alpha = 0.5) +
+    geom_text_repel(
+      data = subset(volcano_plot_data, Significance != "Not Significant"),
+      aes(label = Metabolite),
+      size = 3.5,
+      max.overlaps = Inf,          
+      show.legend = FALSE,
+      color = "black"
+    ) +
+    theme_classic() +
+    labs(
+      title = "Volcano Plot of Metabolites",
+      subtitle = "VEGFR2 R1032Q vs WT",
+      x = bquote(~Log[2]~ "FC"),
+      y = bquote(~-Log[10]~ "(P-value)")
+    ) +
+    theme(
+      plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+      plot.subtitle = element_text(size = 12, hjust = 0.5),
+      axis.title = element_text(face = "bold", size = 12),
+      legend.position = "right",
+      legend.title = element_blank(),
+      legend.text = element_text(size = 10)
+    )
+  ```
+
+- *Osserviamo che sono "up-regolati" la sintesi di idrossiprolina, glutammato, prolina, e idrossiglutarato. Quindi osserviamo glutamminolisi e sintesi dei precursori per il collagene. La glutammina viene convertita in glutammato che a sua volta verrà convertito in alfa-ketoglutarato. E' possibile che un aumento della cinetica del TCA non renda significativa il fold-change dell'alfa ketoglutarato, ma un suo aumento è corroborato dalla sintesi dell'idrossiglutarato. Inoltre, oltre alla conversione in alfa ketoglutarato, il glutammato può essere convertito in prolina, che a sua volta viene converita in idrossiprolina.*
+
+  ![glutaminolysis](images/Screenshot_29-4-2026_233645_.jpeg)
+
+  ![synthesis of proline and hydroxyproline](images/Screenshot_29-4-2026_23397_.jpeg)
+
+- *Osserviamo che è "down-regolato" la sintesi della serina. Ricordiamoci che essa deriva dal 3 fosfo-glicerato, un intermedio della glicolisi. E' possibile che a causa dell'effetto warburg, il pathway glicolitco sia favorito rispetto alla biosintesi di amminoacidi - fra cui la serina, la glicina e la cisteina.*
+
+  ![serine synthesis pathway](images/Screenshot_29-4-2026_234347_-01.jpeg)
+
+  # **Analisi con il software MetaboAnalyst 6.0**
+
+- Usando lo script necessario per installare i pacchetti di questo software, noi possiamo effettuare analisi di pathway enrichment. In questo caso procederemo ad effettuare 3 analisi.
+
+- La prima consiste nell'effettuare l'analisi di over rappresentazione, ovvero di selezionare i pathway che sono più rappresentati. La seconda consiste nell'identificazione specifica dei pathway sfruttando le repositories di Kegg pathway di modo che possiamo valutare l'impatto dei pathway che siamo riusciti ad identificare. La terza infine rappresenta una analisi per l'identificazione di pathway più significativi. In pratica è l'equivalente metabolomico dell'enrichment genomico. Non effettuiamo normalizzazioni in quanto i dati sono già normalizzati (pareto_scaled)
+
+- Procediamo ad effettuare le analisi, conseguentemente dobbiamo caricare le seguenti librerie.
+
+  ```{r}
+  library(MetaboAnalystR)
+  library(Cairo)
+  ```
+
+- Manipoliamo il dataset dei dati normalizzati per renderli utilizzabili per questa analisi
+
+  ```{r}
+  mets_names <- colnames(numerical_data)
+  sample_names_ma <- rownames(numerical_data) 
+  class_labels <- as.character(sample_groups)
+
+  header <- paste(c("Sample", sample_names_ma), collapse = ",")
+  labels <- paste(c("Label",  class_labels), collapse = ",")
+  rows   <- apply(cbind(mets_names, t(numerical_data)), 1, paste, collapse = ",")
+  writeLines(c(header, labels, rows), "Università/tesi magistrale/dati/metaboanalyst_input.csv") #questa è la mia directory, ovviamente cambia in funzione a chi lo usa 
+  ```
+
+- Procediamo con l'analisi MSEA di over rappresentazione.
+
+  ```{r}
+  mSet <- InitDataObjects("conc", "msetora", FALSE, default.dpi = 300)
+  mSet <- Read.TextData(mSet, "Università/tesi magistrale/dati/metaboanalyst_input.csv", "colu", "disc")
+  mSet <- SanityCheckData(mSet)
+  mSet <- PreparePrenormData(mSet)
+  mSet <- Normalization(mSet, "NULL", "NULL", "NULL", ratio=FALSE, ratioNum=20)
+  mSet <- CrossReferencing(mSet, "name")
+  mSet <- CreateMappingResultTable(mSet)
+  mSet <- SetMetabolomeFilter(mSet, FALSE)
+  mSet <- SetCurrentMsetLib(mSet, "smpdb_pathway", 2)
+  mSet <- CalculateHyperScore(mSet)
+
+  ora_df <- as.data.frame(mSet$analSet$ora.mat)
+  ora_df$pathway <- rownames(ora_df)
+  write.csv(ora_df, "Università/tesi magistrale/dati/msea_ora_smpdb_results.csv", row.names = FALSE) #salviamo i risultati
+  ```
+
+- Procediamo con l'analisi di pathway enrichment, ove dobbiamo creare una libreria da Kegg pathway per associare gli ID ottenuti al pathway corrispettivo.
+
+  ```{r}
+  mSet2 <- InitDataObjects("conc", "pathora", FALSE, default.dpi = 300)
+  mSet2 <- Read.TextData(mSet2, "Università/tesi magistrale/dati/metaboanalyst_input.csv", "colu", "disc")
+  mSet2 <- SanityCheckData(mSet2)
+  mSet2 <- PreparePrenormData(mSet2) 
+  mSet2 <- Normalization(mSet2, "NULL", "NULL", "NULL", ratio=FALSE, ratioNum=20)
+
+  mSet2 <- CrossReferencing(mSet2, "name")
+  mSet2 <- CreateMappingResultTable(mSet2)
+  mSet2 <- SetKEGG.PathLib(mSet2, "hsa", "current")
+  mSet2 <- SetMetabolomeFilter(mSet2, F)
+  mSet2 <- CalculateOraScore(mSet2, "rbc", "hyperg") 
+
+  #libreria kegg pathway
+
+  kegg_dict <- read.delim("https://rest.kegg.jp/list/pathway/hsa", 
+                          header = FALSE, 
+                          col.names = c("kegg_id", "pathway_name"),
+                          stringsAsFactors = FALSE) 
+  kegg_dict$kegg_id <- gsub("path:", "", kegg_dict$kegg_id)  
+  kegg_dict$pathway_name <- gsub(" - Homo sapiens \\(human\\)", "", kegg_dict$pathway_name) 
+
+
+  path_mat <- mSet2$analSet$ora.mat
+  path_df  <- as.data.frame(path_mat)
+  colnames(path_df) <- c("total", "expected", "hits", "raw_p", "neg_log10p", "holm_p", "FDR", "impact")
+  path_df$kegg_id <- rownames(path_df)
+  match_indices <- match(path_df$kegg_id, kegg_dict$kegg_id)
+  path_df$pathway_name <- kegg_dict$pathway_name[match_indices]
+  path_df <- path_df[order(path_df$raw_p), ]
+  write.csv(path_df, "Università/tesi magistrale/dati/kegg_pathway_results.csv", row.names = FALSE) #salviamo i risultati
+
+
+  ```
+
+- Procediamo con l'analisi per l'identificazione dei pathway più significativi (Quantitative enrichment analysis)
+
+  ```{r}
+  mSet3 <- InitDataObjects("conc", "msetqea", FALSE, default.dpi = 300)
+  mSet3 <- Read.TextData(mSet3, "Università/tesi magistrale/dati/metaboanalyst_input.csv", "colu", "disc")
+  mSet3 <- SanityCheckData(mSet3)
+  mSet3 <- PreparePrenormData(mSet3)
+  mSet3 <- Normalization(mSet3, "NULL", "NULL", "NULL", ratio = FALSE, ratioNum = 20)
+  mSet3 <- CrossReferencing(mSet3, "name")
+  mSet3 <- CreateMappingResultTable(mSet3)
+  mSet3 <- SetMetabolomeFilter(mSet3, FALSE) 
+
+  mSet3 <- SetCurrentMsetLib(mSet3, "kegg_pathway", 2) 
+  mSet3 <- CalculateGlobalTestScore(mSet3) 
+
+  qea_mat <- mSet3$analSet$qea.mat
+  if(!is.null(qea_mat)){
+    qea_df  <- as.data.frame(qea_mat)
+    qea_df$pathway <- rownames(qea_df)
+    col_name <- ifelse("Raw p" %in% colnames(qea_df), "Raw p", "p.value")
+    qea_df <- qea_df[order(qea_df[[col_name]]), ]
+    print(head(qea_df, 10))
+    write.csv(qea_df, "Università/tesi magistrale/dati/qea_results.csv", row.names = FALSE)
+  } #salviamo i risultati e printiamo il data frame ottenuto
+  ```
+
+- Una volta effettuate le analisi, procediamo a caricare i files ottenuti per effettuare la rappresentazione con il pacchetto ggplot2.
+
+  ```{r}
+  library(ggplot2)
+  library(dplyr)
+
+  ora_data <- read.csv("Università/tesi magistrale/dati/msea_ora_smpdb_results.csv")
+  kegg_data <- read.csv("Università/tesi magistrale/dati/kegg_pathway_results.csv")
+  qea_data <- read.csv("Università/tesi magistrale/dati/qea_results.csv")
+  ```
+
+- MSEA
+
+  ```{r}
+  top_pathways <- ora_data |>
+    arrange(Raw.p) |>
+    slice_head(n = 15) |>
+    mutate(pathway = factor(pathway, levels = rev(pathway))) 
+
+  top_pathways |> 
+    ggplot(aes(x = -log10(Raw.p), y = pathway))  +
+    geom_segment(aes(x = 0, xend = -log10(Raw.p), y = pathway, yend = pathway), color = "grey80") +
+    geom_point(aes(size = hits, fill = -log10(Raw.p)), shape = 21, color = "black") +
+    scale_fill_gradient(low = "blue", high = "red") +
+    scale_size_continuous(range = c(3, 10)) +
+    labs(title = "Pathway Enrichment (SMPDB)",
+         x = "-Log10 p-value",
+         y = NULL,
+         size = "Metabolite Count",
+         fill = "Significance") +
+    theme_minimal() +
+    theme(axis.text.y = element_text(size = 10))
+
+
+  ```
+
+- Kegg enrichment
+
+  ```{r}
+  kegg_plot_data <- kegg_data |>
+    arrange(desc(neg_log10p)) |>
+    slice_head(n = 20) |> 
+    mutate(pathway_name = factor(pathway_name, levels = rev(pathway_name)))
+
+  kegg_plot_data |>
+    ggplot( aes(x = impact, y = pathway_name)) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey60", alpha = 0.8) +
+    geom_point(aes(size = hits, color = neg_log10p), alpha = 0.85) +
+    scale_color_gradient(low = "blue", high = "red", 
+                         name = expression(-log[10](p))) +
+    
+    scale_size_continuous(range = c(3, 11), breaks = c(2, 4, 6, 8), name = "Hits") +
+    labs(
+      title = "KEGG Pathway Analysis",
+      subtitle = "VEGFR2 R1032Q vs WT",
+      x = "Pathway Impact Score",
+      y = NULL
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      panel.grid.major.x = element_line(color = "grey90"),
+      panel.grid.minor.x = element_blank(),
+      panel.grid.major.y = element_blank(), 
+      axis.line.x = element_line(color = "black"),
+      axis.line.y = element_line(color = "black"),
+      axis.text.y = element_text(color = "black", size = 10),
+      axis.text.x = element_text(color = "black", size = 10),
+      plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
+      plot.subtitle = element_text(color = "grey50", size = 11, hjust = 0.5),
+      legend.position = "right"
+    )
+  ```
+
+- QEA
+
+  ```{r}
+  qea_top <- qea_data |>
+    rename(p_val = matches("Raw.p|p.value"),
+           fdr_val = matches("FDR")) |>
+    arrange(p_val) |>
+    slice_head(n = 15) |>
+    mutate(pathway = factor(pathway, levels = rev(pathway)),
+           log10p = -log10(p_val)) 
+
+  qea_top |> 
+    ggplot(aes(x = log10p, y = pathway)) +
+    geom_segment(aes(x = 0, xend = log10p, y = pathway, yend = pathway), 
+                 color = "grey80", linewidth = 1) +
+    geom_point(aes(size = Statistic.Q, fill = fdr_val), 
+               shape = 21, color = "black", stroke = 0.5) +
+    geom_vline(xintercept = -log10(0.05), linetype = "dashed", 
+               color = "firebrick", alpha = 0.6) +
+    scale_fill_gradient(low = "#e31a1c", high = "#feb24c", name = "FDR") +
+    scale_size_continuous(range = c(4, 10), name = "Global Statistic") +
+    labs(
+      title = "Quantitative Enrichment Analysis (GlobalTest)",
+      subtitle = "Top 15 Pathways - VEGFR2 R1032Q vs WT",
+      x = expression(-log[10](p-value)),
+      y = NULL
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      axis.text.y = element_text(face = "bold", color = "black"),
+      plot.title = element_text(face = "bold")
+    )
+  ```
+
+- I risultati corroborano quanto detto sul significato biologico dei risultati del volcano plotting.
